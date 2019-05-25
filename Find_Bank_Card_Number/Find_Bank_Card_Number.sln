@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28729.10
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Find_Bank_Card_Number", "Find_Bank_Card_Number\Find_Bank_Card_Number.vcxproj", "{A9AA9F27-AC2C-4EE0-8D85-2BCE739C2F26}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug - multithread|x64 = Debug - multithread|x64
+		Debug - multithread|x86 = Debug - multithread|x86
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A9AA9F27-AC2C-4EE0-8D85-2BCE739C2F26}.Debug - multithread|x64.ActiveCfg = Debug - multithread|x64
+		{A9AA9F27-AC2C-4EE0-8D85-2BCE739C2F26}.Debug - multithread|x64.Build.0 = Debug - multithread|x64
+		{A9AA9F27-AC2C-4EE0-8D85-2BCE739C2F26}.Debug - multithread|x86.ActiveCfg = Debug - multithread|x64
+		{A9AA9F27-AC2C-4EE0-8D85-2BCE739C2F26}.Debug|x64.ActiveCfg = Debug|x64
+		{A9AA9F27-AC2C-4EE0-8D85-2BCE739C2F26}.Debug|x64.Build.0 = Debug|x64
+		{A9AA9F27-AC2C-4EE0-8D85-2BCE739C2F26}.Debug|x86.ActiveCfg = Debug|x64
+		{A9AA9F27-AC2C-4EE0-8D85-2BCE739C2F26}.Release|x64.ActiveCfg = Release|x64
+		{A9AA9F27-AC2C-4EE0-8D85-2BCE739C2F26}.Release|x64.Build.0 = Release|x64
+		{A9AA9F27-AC2C-4EE0-8D85-2BCE739C2F26}.Release|x86.ActiveCfg = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AFF00D52-C693-412D-ACC0-EACE5F4D532B}
+	EndGlobalSection
+EndGlobal

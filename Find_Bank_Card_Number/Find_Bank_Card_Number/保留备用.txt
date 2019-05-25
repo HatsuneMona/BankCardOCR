@@ -1,0 +1,25 @@
+//直方图增强对比度
+
+//vector< Mat > splitBGR(inimg.channels());
+////分割通道，存储到splitBGR中
+//split(inimg, splitBGR);
+////对各个通道分别进行直方图均衡化
+//for (int i = 0; i < inimg.channels(); i++)
+//	equalizeHist(splitBGR[i], splitBGR[i]);
+////合并通道
+//merge(splitBGR, inimg);
+////imshow("imageAdjust", inimg);
+
+	//OpenCV3.3中给出了K - 均值聚类(K - Means)的实现，即接口cv::kmeans 其中：
+	//	下面对此接口中的参数作个简单说明：
+	//	(1)、data：为cv::Mat类型，每行代表一个样本，即特征，即mat.cols = 特征长度，mat.rows = 样本数，数据类型仅支持float；
+	//	(2)、K：指定聚类时划分为几类；
+	//	(3)、bestLabels：为cv::Mat类型，是一个长度为(样本数，1)的矩阵，即mat.cols = 1, mat.rows = 样本数；为K - Means算法的结果输出，指定每一个样本聚类到哪一个label中；
+	//	(4)、criteria：TermCriteria类，算法进行迭代时终止的条件，可以指定最大迭代次数，也可以指定预期的精度，也可以这两种同时指定；
+	//	(5)、attempts：指定K - Means算法执行的次数，每次算法执行的结果是不一样的，选择最好的那次结果输出；
+	//	(6)、flags：初始化均值点的方法，目前支持三种：KMEANS_RANDOM_CENTERS、KMEANS_PP_CENTERS、KMEANS_USE_INITIAL_LABELS；
+	//	(7)、centers：为cv::Mat类型，输出最终的均值点，mat.cols = 特征长度，mat.rols = K.
+	//	一般当attempts和TermCriteria中迭代次数值越大时，聚类效果越好。
+	//double kmeans(InputArray data, int K, InputOutputArray bestLabels,
+	//	TermCriteria criteria, int attempts,
+	//	int flags, OutputArray centers = noArray());
