@@ -75,31 +75,41 @@ void Projection::UsefulJudge() {
 	}
 }
 
-vector<int> Projection::FindRowPeak(double value) {
+vector<int> Projection::rowTanPeak(double tanMinValue, int precisionValue, int passValue) {
 	vector<int> results;
-	int precision = 3;//设置精度
-	int truePass = 10;//找到后跳过多少数据
-	for (int i = 0; i < height - precision; i = i + precision) {
-		double tan = 1.000 * (rowStat[i] - rowStat[i + precision]) / precision;
-		if (tan < 0) tan = -tan;
-		if (tan > value) {
+	//int precisionValue = 3;//设置精度
+	//int passValue = 10;//找到后跳过多少数据
+	for (int i = 0; i < height - precisionValue; i = i + precisionValue) {
+		int max = 0, min = 10000;
+		for (int j = i; j < i + 3; j++) {
+			if (rowStat[j] > max) max = rowStat[j];
+			if (rowStat[j] < min) min = rowStat[j];
+		}
+		double tan = 1.000 * (max - min) / precisionValue;
+		if (tan < 0) tan = -tan;//取绝对值
+		if (tan > tanMinValue) {
 			results.push_back(i + 2);
-			i = i + truePass;
+			i = i + passValue;
 		}
 	}
 	return results;
 }
 
-vector<int> Projection::FindColPeak(double value) {
+vector<int> Projection::colTanPeak(double tanMinValue, int precisionValue, int passValue) {
 	vector<int> results;
-	int precision = 3;//设置精度
-	int truePass = 10;//找到后跳过多少数据
-	for (int i = 0; i < width - precision; i = i + precision) {
-		double tan = 1.000 * (colStat[i] - colStat[i + precision]) / precision;
-		if (tan < 0) tan = -tan;
-		if (tan > value) {
+	//int precisionValue = 3;//设置精度
+	//int truePass = 10;//找到后跳过多少数据
+	for (int i = 0; i < width - precisionValue; i = i + precisionValue) {
+		int max = 0, min = 10000;
+		for (int j = i; j < i + 3; j++) {
+			if (rowStat[j] > max) max = rowStat[j];
+			if (rowStat[j] < min) min = rowStat[j];
+		}
+		double tan = 1.000 * (max - min) / precisionValue;
+		if (tan < 0) tan = -tan;//取绝对值
+		if (tan > tanMinValue) {
 			results.push_back(i + 2);
-			i = i + truePass;
+			i = i + passValue;
 		}
 	}
 	return results;

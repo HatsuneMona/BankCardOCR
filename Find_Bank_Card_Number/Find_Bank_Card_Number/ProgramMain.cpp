@@ -23,7 +23,7 @@ Vec3b gradientColorTab[8] = {
 };
 
 //临时输出文件夹（需手动创建）格式："imwrite\\test2"
-String tempOutPath = "imwrite\\20190524";
+String tempOutPath = "imwrite\\20190526";
 void MultiThread(int i);
 void ShowTime();
 

@@ -19,3 +19,4 @@ Find_Bank_Card_Number/.vs/Find_Bank_Card_Number/v16/.suo
 *.pyc
 *.tfrecord
 Card_Number_Identification/hello.py
+*.opendb

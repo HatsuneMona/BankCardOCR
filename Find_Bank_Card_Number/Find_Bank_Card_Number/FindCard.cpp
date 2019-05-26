@@ -73,8 +73,8 @@ void FindCard::UseKmeans() {
 
 void FindCard::FineTuning() {
 
-	auto colPeak = cardPj.FindColPeak(15.00);
-	auto rowPeak = cardPj.FindRowPeak(20.00);
+	auto colPeak = cardPj.colTanPeak(15.00, 3, 10);
+	auto rowPeak = cardPj.rowTanPeak(20.00, 3, 10);
 
 	for (y1 = 0; cardPj.rowStat[y1] < cardPj.rowStatAverage; ++y1) {
 		line(kmeansErodeImg, Point(0, y1),
@@ -86,17 +86,17 @@ void FindCard::FineTuning() {
 			Point(kmeansErodeImg.cols, y2), Scalar::all(0));
 		if (y2 < rowPeak[rowPeak.size() - 1])break;
 	}
-	for (x1 = 0; cardPj.colStat[x1] < cardPj.colStatAverage; ++x1) {
-		line(kmeansErodeImg, Point(x1, 0),
-			Point(x1, kmeansErodeImg.cols), Scalar::all(0));
-		if (x1 > colPeak[0])break;
+	for (y1 = 0; cardPj.colStat[y1] < cardPj.colStatAverage; ++y1) {
+		line(kmeansErodeImg, Point(y1, 0),
+			Point(y1, kmeansErodeImg.cols), Scalar::all(0));
+		if (y1 > colPeak[0])break;
 	}
-	for (x2 = cardPj.width - 1; cardPj.colStat[x2] < cardPj.colStatAverage; --x2) {
-		line(kmeansErodeImg, Point(x2, 0),
-			Point(x2, kmeansErodeImg.cols), Scalar::all(0));
-		if (x2 < colPeak[colPeak.size() - 1])break;
+	for (y2 = cardPj.width - 1; cardPj.colStat[y2] < cardPj.colStatAverage; --y2) {
+		line(kmeansErodeImg, Point(y2, 0),
+			Point(y2, kmeansErodeImg.cols), Scalar::all(0));
+		if (y2 < colPeak[colPeak.size() - 1])break;
 	}
-	bankCardArea = Rect(x1, y1, x2 - x1, y2 - y1);
+	bankCardArea = Rect(y1, y1, y2 - y1, y2 - y1);
 }
 
 void FindCard::UseFindContours() {

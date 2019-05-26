@@ -29,8 +29,8 @@ public:
 	bool rowUseful = true;
 	bool colUseful = true;
 
-	vector<int> FindRowPeak(double value);
-	vector<int> FindColPeak(double value);
+	vector<int> rowTanPeak(double tanMinValue, int precisionValue, int passValue);
+	vector<int> colTanPeak(double tanMinValue, int precisionValue, int passValue);
 
 	Projection(Mat img);
 	Projection();
