@@ -15,3 +15,7 @@ OpenCVCPP/.vs/OpenCVCPP/v16/.suo
 OpenCVCut/.vs/OpenCVCut/v16/.suo
 OpenCVCut/.vs/OpenCVCut/v15/.suo
 Find_Bank_Card_Number/.vs/Find_Bank_Card_Number/v16/.suo
+*.png
+*.pyc
+*.tfrecord
+Card_Number_Identification/hello.py
