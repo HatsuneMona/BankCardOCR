@@ -20,7 +20,7 @@ private:
 	void CalculatRowSize();
 	void CutRow();
 public:
-	int width, height;
+	//int width, height;
 	Mat grayImg;//¥Ê¥¢ª“∂»Õº
 	Mat colorfulImg;//¥Ê¥¢‘≠Õº
 	Mat kmeansImg;

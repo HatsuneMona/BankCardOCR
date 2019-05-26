@@ -34,18 +34,19 @@ int main(int argc, char* argv[]) {
 		std::thread a(ShowTime);
 		a.detach();
 		cout << "单线程处理" << endl;
-		for (int i = 1; i <= 18; i++) {
-			cout << "第 " << i << " 张图片开始处理 ";
-			String path = "testImages\\20190524\\";
-			//String path = "testImages\\test2\\";
-			path += std::to_string(i);
-			path += ".jpg";
-			Mat m = imread(path);
-			if (m.empty()) continue;
-			FindNumber number = FindNumber(m);
-			//FindCard card = FindCard(m);
-			cout << " 处理完毕" << endl;
-		}
+		while (1)
+			for (int i = 1; i <= 18; i++) {
+				cout << "第 " << i << " 张图片开始处理 ";
+				String path = "testImages\\allcard\\";
+				//String path = "testImages\\test2\\";
+				path += std::to_string(i);
+				path += ".jpg";
+				Mat m = imread(path);
+				if (m.empty()) continue;
+				//FindNumber number = FindNumber(m);
+				FindCard card = FindCard(m);
+				cout << " 处理完毕" << endl;
+			}
 		cout << "关闭所有窗口退出，正在等待退出";
 		getchar();
 		waitKey();

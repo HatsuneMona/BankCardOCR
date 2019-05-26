@@ -30,7 +30,7 @@ FindCard::FindCard(Mat img) {
 	//Myimwrite("银行卡图片 ", bankCardAreaImage);
 
 	//Myimshow("Kmeans聚类 ", kmeansImg);
-	//Number = FindNumber(bankCardAreaImage);//进行到下一步，找卡号。
+	Number = FindNumber(bankCardAreaImage);//进行到下一步，找卡号。
 }
 
 void FindCard::LoadDealing() {
@@ -76,15 +76,15 @@ void FindCard::FineTuning() {
 	auto colPeak = cardPj.colTanPeak(15.00, 3, 10);
 	auto rowPeak = cardPj.rowTanPeak(20.00, 3, 10);
 
-	for (y1 = 0; cardPj.rowStat[y1] < cardPj.rowStatAverage; ++y1) {
-		line(kmeansErodeImg, Point(0, y1),
-			Point(kmeansErodeImg.cols, y1), Scalar::all(0));
-		if (y1 > rowPeak[0])break;
+	for (x1 = 0; cardPj.rowStat[x1] < cardPj.rowStatAverage; ++x1) {
+		line(kmeansErodeImg, Point(0, x1),
+			Point(kmeansErodeImg.cols, x1), Scalar::all(0));
+		if (x1 > rowPeak[0])break;
 	}
-	for (y2 = cardPj.height - 1; cardPj.rowStat[y2] < cardPj.rowStatAverage; --y2) {
-		line(kmeansErodeImg, Point(0, y2),
-			Point(kmeansErodeImg.cols, y2), Scalar::all(0));
-		if (y2 < rowPeak[rowPeak.size() - 1])break;
+	for (x2 = cardPj.height - 1; cardPj.rowStat[x2] < cardPj.rowStatAverage; --x2) {
+		line(kmeansErodeImg, Point(0, x2),
+			Point(kmeansErodeImg.cols, x2), Scalar::all(0));
+		if (x2 < rowPeak[rowPeak.size() - 1])break;
 	}
 	for (y1 = 0; cardPj.colStat[y1] < cardPj.colStatAverage; ++y1) {
 		line(kmeansErodeImg, Point(y1, 0),
@@ -96,7 +96,7 @@ void FindCard::FineTuning() {
 			Point(y2, kmeansErodeImg.cols), Scalar::all(0));
 		if (y2 < colPeak[colPeak.size() - 1])break;
 	}
-	bankCardArea = Rect(y1, y1, y2 - y1, y2 - y1);
+	bankCardArea = Rect(y1, x1, y2 - y1, x2 - x1);
 }
 
 void FindCard::UseFindContours() {

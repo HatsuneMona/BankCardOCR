@@ -25,8 +25,8 @@ FindNumber::FindNumber(Mat img) {
 void FindNumber::LoadDeal() {
 	resize(colorfulImg, colorfulImg, NUM_SIZE);//修改图像大小
 	cvtColor(colorfulImg, grayImg, COLOR_RGB2GRAY);//创建灰度图
-	width = colorfulImg.cols;
-	height = colorfulImg.rows;
+	//width = colorfulImg.cols;
+	//height = colorfulImg.rows;
 	//Myimwrite("标准大小的银行卡", colorfulImg);
 }
 
@@ -167,7 +167,7 @@ FindNumber::~FindNumber() {
 
 void FindNumber::FindRowPeak() {
 	for (auto i : eachColorP) {
-		vector<int> rowPeakTemp = i.rowTanPeak(3.3, 3, 10);
+		vector<int> rowPeakTemp = i.rowTanPeak(2, 4, 5);
 		rowPeak.push_back(rowPeakTemp);
 	}
 	//for (int pic = 0; pic < srcNumP.size(); pic++) {
@@ -193,7 +193,7 @@ void FindNumber::CalculatRowSize() {
 			Location temp{ peak , 0 , 0 };
 			peakNo++;
 			int i = 0;
-				if (peakNo != pic.size() - 1) {
+				if (peakNo < pic.size() - 1) {
 					for (; peak + i < pic[peakNo + 1]; i++) { //计算平均面积
 						try {
 							temp.size += eachColorP[picNo].rowStat[peak + i];
@@ -203,13 +203,13 @@ void FindNumber::CalculatRowSize() {
 					temp.rowEnd = pic[peakNo + 1];
 				}
 				else {
-					for (; peak + i < height; i++) { //计算平均面积
+					for (; peak + i < roughlyNumImg.rows; i++) { //计算平均面积
 						try {
 							temp.size += eachColorP[picNo].rowStat[peak + i];
 						}
 						catch (...) {}
 					}
-					temp.rowEnd = height;
+					temp.rowEnd = roughlyNumImg.rows;
 				}
 			temp.size = temp.size / i;
 			if (picNo > 0) {//如果是第一张以后的图片
@@ -242,14 +242,14 @@ void FindNumber::CalculatRowSize() {
 			realL = i;
 		}
 	}
-	y1 = realL.rowStart - 7;
-	y2 = realL.rowStart + rowHeightMaxValue + 8;
+	y1 = realL.rowStart - 2;
+	y2 = realL.rowStart + rowHeightMaxValue + 3;
 	if (y1 < 0)y1 = 0;
 	if (y2 > roughlyNumImg.rows)y2 = roughlyNumImg.rows - 1;
 	int i = 1;
 }
 void FindNumber::CutRow() {
-	preciseRowRect = Rect(0, y1, width, y2 - y1);
+	preciseRowRect = Rect(0, y1, roughlyNumImg.cols, y2 - y1);
 	preciseRowImg = roughlyNumImg(preciseRowRect).clone();
 }
 //
