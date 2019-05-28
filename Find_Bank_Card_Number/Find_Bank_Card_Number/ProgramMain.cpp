@@ -23,9 +23,10 @@ Vec3b gradientColorTab[8] = {
 };
 
 //临时输出文件夹（需手动创建）格式："imwrite\\test2"
-String tempOutPath = "imwrite\\20190526";
+String tempOutPath = "imwrite\\20190527";
 void MultiThread(int i);
 void ShowTime();
+
 
 int main(int argc, char* argv[]) {
 	srand(time(0));
@@ -34,8 +35,8 @@ int main(int argc, char* argv[]) {
 		std::thread a(ShowTime);
 		a.detach();
 		cout << "单线程处理" << endl;
-		while (1)
-			for (int i = 1; i <= 18; i++) {
+		//while (1)
+			for (int i = 7; i <= 7; i++) {
 				cout << "第 " << i << " 张图片开始处理 ";
 				String path = "testImages\\allcard\\";
 				//String path = "testImages\\test2\\";
@@ -48,13 +49,13 @@ int main(int argc, char* argv[]) {
 				cout << " 处理完毕" << endl;
 			}
 		cout << "关闭所有窗口退出，正在等待退出";
-		getchar();
+		//getchar();
 		waitKey();
 	}
 	else if (argc == 1) {
 		//多线程处理
 		for (int i = 1; i <= 18; i++) {
-			this_thread::sleep_for(1.5s);
+			this_thread::sleep_for(0.5s);
 			std::thread a(MultiThread, i);
 			a.detach();
 		}

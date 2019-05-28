@@ -24,6 +24,7 @@ public:
 	Projection cardPj;
 	int x1, x2, y1, y2;
 
+	FindCard();
 	FindCard(Mat img);
 	~FindCard();
 };

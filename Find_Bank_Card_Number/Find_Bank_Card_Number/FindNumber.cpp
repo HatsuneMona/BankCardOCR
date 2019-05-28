@@ -1,24 +1,41 @@
 #include "FindNumber.h"
 #include<vector>
+#include<cmath>
+using std::abs;
 using namespace std;
 
 FindNumber::FindNumber() { }
 
 FindNumber::FindNumber(Mat img) {
+
 	colorfulImg = img;
 	LoadDeal();
 	盲猜缩小范围();
+	//Myimwrite("分割用原图", roughlyNumImg);
 	UseKmeans();
 	GetEachColor();
 	FindRowPeak();
-	CalculatRowSize();
+	FindRow();
 	CutRow();
 	//找数字();
 
 	//Myimwrite("粗略卡号图像 ", 粗略的卡号图像);
 	////Myimwrite("卡号Kmeans图像 ", kmeansImg);
 	//Myimwrite("卡号形态学梯度图像 ", kmeansErodeImg);
-
+	//for (int i = 0; i < eachColorP.size(); i++) {
+	//	Myimwrite("第" + to_string(i) + "张图片的原图", eachColorP[i].srcImg);
+	//	Myimwrite("第" + to_string(i) + "张图片的row投影", eachColorP[i].rowPImgWithAverage);
+	//	Myimwrite("第" + to_string(i) + "张图片的col投影", eachColorP[i].colPImgWithAverage);
+	//}
+	//vector<Projection> test;
+	//for (auto i : eachColorP) {
+	//	test.push_back(Projection(i.srcImg(preciseRowRect)));
+	//}
+	//for (int i = 0; i < test.size(); i++) {
+	//	Myimwrite("第" + to_string(i) + "张图片的原图", test[i].srcImg);
+	//	//Myimwrite("第" + to_string(i) + "张图片的row投影", test[i].rowPImgWithAverage);
+	//	Myimwrite("第" + to_string(i) + "张图片的col投影", test[i].colPImgWithAverage);
+	//}
 	Myimwrite("精确卡号图像", preciseRowImg);
 }
 
@@ -45,7 +62,7 @@ void FindNumber::UseKmeans() {
 
 	//根据浏览图片，确定k=3
 	kmeans(data, 4, labels, TermCriteria(TermCriteria::EPS + TermCriteria::COUNT, 10, 1.0),
-		3, KMEANS_RANDOM_CENTERS);
+		1, KMEANS_PP_CENTERS);
 
 	int n = 0;
 	//显示聚类结果，不同的类别用不同的颜色显示
@@ -57,11 +74,8 @@ void FindNumber::UseKmeans() {
 		}
 
 	morphologyEx(kmeansImg, kmeansErodeImg, MORPH_GRADIENT,
-		getStructuringElement(MORPH_RECT, Size(2, 2)));
+		getStructuringElement(MORPH_RECT, Size(3, 3)));//原来是4,4
 
-	////Myimshow("Kmeans聚类", kmeansImg);
-	//Myimwrite("Kmeans聚类", kmeansImg);
-	//Myimwrite("形态学梯度", kmeansErodeImg);
 }
 
 void FindNumber::盲猜缩小范围() {
@@ -153,114 +167,88 @@ void FindNumber::GetEachColor() {
 				colorStat[choose]++;
 			}
 		}
-	for (int i = 1; i < 8; i++) 
+	for (int i = 1; i < 8; i++) {
+		cvtColor(EachColor[i], EachColor[i], COLOR_RGB2GRAY);
+		//排除微小干扰
+		morphologyEx(EachColor[i], EachColor[i], MORPH_GRADIENT,
+			getStructuringElement(MORPH_RECT, Size(3, 3)));
 		if (colorStat[i] > COLORSTAT_MIN) {
-			cvtColor(EachColor[i], EachColor[i], COLOR_RGB2GRAY);
-			threshold(EachColor[i], EachColor[i], 1, 255, THRESH_BINARY);
-			eachColorP.push_back(Projection(EachColor[i]));
+			threshold(EachColor[i], EachColor[i], 30, 255, THRESH_BINARY);
+			auto temp = Projection(EachColor[i]);
+			if (temp.statAll > COLORSTAT_MIN) {
+				eachColorP.push_back(temp);
+			}
 		}
+	}
 }
-
 
 FindNumber::~FindNumber() {
 }
 
 void FindNumber::FindRowPeak() {
 	for (auto i : eachColorP) {
-		vector<int> rowPeakTemp = i.rowTanPeak(2, 4, 5);
+		vector<pt> rowPeakTemp = i.rowTanPeak(20, 3, 4);//5,3,15
 		rowPeak.push_back(rowPeakTemp);
 	}
-	//for (int pic = 0; pic < srcNumP.size(); pic++) {
-	//	vector<int> rowPeakTemp = srcNumP[pic].rowTanPeak(15, 3, 15);
-	//	rowPeak.push_back(rowPeakTemp);
-	//}
 }
 
-void FindNumber::CalculatRowSize() {
-	int rowHeightMaxValue = 25;//规定数字区域的宽
-	int fuzzyValue = 5;//规定模糊值
-	struct Location {
-		int rowStart;
-		int rowEnd;
-		int size;
-	};
-	vector<Location> hasFoundsL;
-	int picNo = -1;
-	for (auto pic : rowPeak) {//对于所有的图片
-		picNo++;
-		int peakNo = -1;
-		for (auto peak : pic) {//对于所有的峰值
-			Location temp{ peak , 0 , 0 };
-			peakNo++;
-			int i = 0;
-				if (peakNo < pic.size() - 1) {
-					for (; peak + i < pic[peakNo + 1]; i++) { //计算平均面积
-						try {
-							temp.size += eachColorP[picNo].rowStat[peak + i];
-						}
-						catch (...) {}
-					}
-					temp.rowEnd = pic[peakNo + 1];
-				}
-				else {
-					for (; peak + i < roughlyNumImg.rows; i++) { //计算平均面积
-						try {
-							temp.size += eachColorP[picNo].rowStat[peak + i];
-						}
-						catch (...) {}
-					}
-					temp.rowEnd = roughlyNumImg.rows;
-				}
-			temp.size = temp.size / i;
-			if (picNo > 0) {//如果是第一张以后的图片
-				bool flag = false;
-				for (auto &i : hasFoundsL) {
-					if (i.rowStart - temp.rowStart <= fuzzyValue &&
-						i.rowStart - temp.rowStart >= -fuzzyValue&&
-						i.rowEnd - temp.rowEnd <= fuzzyValue &&
-						i.rowEnd - temp.rowEnd >= -fuzzyValue) {
-						flag = true;
-						i.size += temp.size;
-						if (temp.rowStart < i.rowStart) 
-							i.rowStart = temp.rowStart;
-						if (temp.rowEnd > i.rowEnd)
-							i.rowEnd = temp.rowEnd;
-					}
-				}
-				if (!flag) {
-					hasFoundsL.push_back(temp);
-				}
-			}
-			else {
-				hasFoundsL.push_back(temp);
+void FindNumber::FindRow() {
+	int fuzzyValue = 2;
+	vector<Rect> foundRects;
+	Rect realRect = Rect(0, 0, 1, 1);
+	for (int PNo = 0; PNo < eachColorP.size(); PNo++) {
+		auto pr = eachColorP[PNo];
+		//Myimwrite("原始投影", pr.rowPImgWithAverage);
+
+		auto tempRects = UseFindContours(pr.rowProjectionImg
+			(Rect(0, 0, pr.width - pr.rowStatAverage + 3, pr.height)));
+		//Myimwrite("原图 ", pr.srcImg);
+		for (auto i : tempRects) {
+			//double weight = 0.2 * pr.height / 2 - abs((i.y + i.height) / 2 - pr.height / 2);
+			if (i.height >= 10 && i.height <= 30
+				&& i.area() > realRect.area()){
+				realRect = i;
 			}
 		}
 	}
-	Location realL{ 0 , 0 , 0 };
-	for (auto i : hasFoundsL) {
-		if (i.size > realL.size) {
-			realL = i;
-		}
-	}
-	y1 = realL.rowStart - 2;
-	y2 = realL.rowStart + rowHeightMaxValue + 3;
+	y1 = realRect.y - 4;
+	y2 = realRect.y + realRect.height + 8;
 	if (y1 < 0)y1 = 0;
 	if (y2 > roughlyNumImg.rows)y2 = roughlyNumImg.rows - 1;
-	int i = 1;
 }
+
+vector<Rect> FindNumber::UseFindContours(Mat srcImg) {
+	Mat img = srcImg.clone();
+	Mat test;
+	//消除细尖的影
+	morphologyEx(img, test, MORPH_DILATE,
+		getStructuringElement(MORPH_RECT, Size(5,5)));
+	//Myimwrite("效果图", test);
+	bitwise_not(img, img);
+
+	vector<vector<Point>> contours = vector<vector<Point>>();//定义轮廓
+	vector<Vec4i> hierarchy = vector<Vec4i>();//定义层次结构
+	findContours(img, contours, hierarchy, RETR_CCOMP, CHAIN_APPROX_SIMPLE);// 寻找轮廓
+
+	cvtColor(img, img, COLOR_GRAY2RGB);//如果需要可视化绘制轮廓则需要RGB
+	Scalar color(255, 255, 255);
+
+	vector<Rect> rects;//定义轮廓框
+	if(contours.size()!=0)
+		for (int index = 0; index >= 0; index = hierarchy[index][0]) {//遍历轮廓
+			//drawContours(img, contours, index, color, FILLED, 8, hierarchy);
+			Rect tempRect = boundingRect(contours[index]);
+			if (tempRect.height >= 10 && tempRect.area() > 100) {//检测外轮廓
+				rectangle(img, tempRect, Scalar(0, 0, 255), 3);//对所有轮廓加矩形框
+				rects.push_back(tempRect);
+			}
+		}
+	//Myimwrite("轮廓图 ", img);
+	return rects;
+}
+
+
 void FindNumber::CutRow() {
 	preciseRowRect = Rect(0, y1, roughlyNumImg.cols, y2 - y1);
 	preciseRowImg = roughlyNumImg(preciseRowRect).clone();
 }
-//
-//NumProjectionDeal::NumProjectionDeal() {
-//}
-//
-//NumProjectionDeal::NumProjectionDeal(vector<Projection> src) {
-//	eachColorP = src;
-//	FindRowPeak();
-//	CalculatRowSize();
-//}
-//
-//NumProjectionDeal::~NumProjectionDeal() {
-//}

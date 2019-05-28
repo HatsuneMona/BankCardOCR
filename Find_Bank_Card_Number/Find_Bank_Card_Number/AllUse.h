@@ -13,6 +13,10 @@ using namespace cv;
 //#define IMG_WIDTH     640
 //#define IMG_HEIGHT    480
 //#define IMG_SIZE      Size(IMG_WIDTH, IMG_HEIGHT)
+struct pt {
+	int location;
+	double tan;
+};
 
 extern Vec3b kmeansColorTab[];
 extern Vec3b gradientColorTab[8];

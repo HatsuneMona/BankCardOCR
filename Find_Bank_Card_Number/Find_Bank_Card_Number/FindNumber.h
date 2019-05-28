@@ -17,7 +17,8 @@ private:
 	Mat UseSobel(Mat srcImg, int xy = 3);
 	void GetEachColor();
 	void FindRowPeak();
-	void CalculatRowSize();
+	void FindRow();
+	vector<Rect> UseFindContours(Mat srcImg);
 	void CutRow();
 public:
 	//int width, height;
@@ -28,8 +29,8 @@ public:
 	Mat roughlyNumImg;
 	Mat kmeansErodeImg;
 	vector<Projection> eachColorP;
-	vector<vector<int>> colPeak;
-	vector<vector<int>> rowPeak;
+	vector<vector<pt>> colPeak;
+	vector<vector<pt>> rowPeak;
 	int y1, y2;
 
 	Rect preciseRowRect;
@@ -39,29 +40,3 @@ public:
 	FindNumber(Mat img);
 	~FindNumber();
 };
-
-#define ROWPLUSNUM 20
-//#define COLPLUSNUM 20
-//
-//class NumProjectionDeal {
-//private:
-//	void UsePlus();
-//	void FindRowPeak();
-//	void CalculatRowSize();
-//	double variance(double a[]);//·½²î£» 
-//public:
-//	vector<Projection> eachColorP;
-//	vector<vector<int>> colPeak;
-//	vector<vector<int>> rowPeak;
-//
-//	vector<int> rowSize;
-//
-//	int width, height;
-//	int x1, x2, y1, y2;
-//	vector<Mat> colPImgWithAverage;
-//	vector<Mat> rowPImgWithAverage;
-//
-//	NumProjectionDeal();
-//	NumProjectionDeal(vector<Projection> src);
-//	~NumProjectionDeal();
-//};

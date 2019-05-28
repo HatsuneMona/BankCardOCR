@@ -2,6 +2,8 @@
 #include <vector>
 using std::vector;
 
+FindCard::FindCard() {}
+
 FindCard::FindCard(Mat img) {
 	colorfulImg = img;
 	LoadDealing();//预处理图片
@@ -9,16 +11,17 @@ FindCard::FindCard(Mat img) {
 
 	//对聚类结果进行投影分析
 	cardPj = Projection(kmeansErodeImg);
-	if (cardPj.rowStat[0] == 0
-		&& cardPj.rowStat[cardPj.height - 1] == 0
-		&& cardPj.colStat[0] == 0
-		&& cardPj.colStat[cardPj.width - 1] == 0) {
-		UseFindContours();
-		//Myimwrite("调整后的聚类轮廓", kmeansErodeImg);
-	}
-	else {
-		FineTuning();
-	}
+	FineTuning();
+	//if (cardPj.rowStat[0] == 0
+	//	&& cardPj.rowStat[cardPj.height - 1] == 0
+	//	&& cardPj.colStat[0] == 0
+	//	&& cardPj.colStat[cardPj.width - 1] == 0) {
+	//	UseFindContours();
+	//	//Myimwrite("调整后的聚类轮廓", kmeansErodeImg);
+	//}
+	//else {
+	//	FineTuning();
+	//}
 	//根据聚类的结果进行裁剪图片
 	bankCardAreaImage = Mat(colorfulImg, bankCardArea).clone();
 
@@ -54,7 +57,7 @@ void FindCard::UseKmeans() {
 
 	//使用kmeans，2类
 	kmeans(data, 2, labels, TermCriteria(TermCriteria::EPS + TermCriteria::COUNT, 10, 1.0),
-		1, KMEANS_RANDOM_CENTERS);
+		3, KMEANS_PP_CENTERS);
 
 	int n = 0;
 	//显示聚类结果，不同的类别用不同的颜色显示
@@ -72,30 +75,59 @@ void FindCard::UseKmeans() {
 }
 
 void FindCard::FineTuning() {
+	bool side[4];//上下左右
+	vector<pt> colPeak, rowPeak;
 
-	auto colPeak = cardPj.colTanPeak(15.00, 3, 10);
-	auto rowPeak = cardPj.rowTanPeak(20.00, 3, 10);
+	side[0] = (cardPj.rowStat[0] == 0 || cardPj.rowStat[0] >= 70) ? true : false;
+	side[1] = (cardPj.rowStat[cardPj.height - 1] == 0 || cardPj.rowStat[cardPj.height - 1] >= 70) ? true : false;
+	side[2] = (cardPj.colStat[0] == 0 || cardPj.colStat[0] >= 70) ? true : false;
+	side[3] = (cardPj.colStat[cardPj.width - 1] == 0 || cardPj.colStat[cardPj.width - 1] >= 70) ? true : false;
+	if(!(side[2] && side[3]))
+		colPeak = cardPj.colTanPeak(15.00, 3, 10);
+	if (!(side[0] && side[1]))
+		rowPeak = cardPj.rowTanPeak(13.80, 3, 10);
 
-	for (x1 = 0; cardPj.rowStat[x1] < cardPj.rowStatAverage; ++x1) {
-		line(kmeansErodeImg, Point(0, x1),
-			Point(kmeansErodeImg.cols, x1), Scalar::all(0));
-		if (x1 > rowPeak[0])break;
+	if (!side[0]) {
+		for (x1 = 0; cardPj.rowStat[x1] < cardPj.rowStatAverage; ++x1) {
+			//line(kmeansErodeImg, Point(0, x1),
+			//	Point(kmeansErodeImg.cols, x1), Scalar::all(0));
+			if (x1 > rowPeak[0].location)break;
+		}
 	}
-	for (x2 = cardPj.height - 1; cardPj.rowStat[x2] < cardPj.rowStatAverage; --x2) {
-		line(kmeansErodeImg, Point(0, x2),
-			Point(kmeansErodeImg.cols, x2), Scalar::all(0));
-		if (x2 < rowPeak[rowPeak.size() - 1])break;
+	else
+		for (x1 = 0; cardPj.rowStat[x1] <= 30; ++x1) {}
+	if (!side[1]){
+		for (x2 = cardPj.height - 1; cardPj.rowStat[x2] < cardPj.rowStatAverage; --x2) {
+			//line(kmeansErodeImg, Point(0, x2),
+			//	Point(kmeansErodeImg.cols, x2), Scalar::all(0));
+			if (x2 < rowPeak[rowPeak.size() - 1].location)break;
+		}
 	}
-	for (y1 = 0; cardPj.colStat[y1] < cardPj.colStatAverage; ++y1) {
-		line(kmeansErodeImg, Point(y1, 0),
-			Point(y1, kmeansErodeImg.cols), Scalar::all(0));
-		if (y1 > colPeak[0])break;
+	else
+		for (x2 = cardPj.height - 1; cardPj.rowStat[x2] <= 30; --x2) {}
+	if (!side[2]){
+		for (y1 = 0; cardPj.colStat[y1] < cardPj.colStatAverage; ++y1) {
+			//line(kmeansErodeImg, Point(y1, 0),
+			//	Point(y1, kmeansErodeImg.cols), Scalar::all(0));
+			if (y1 > colPeak[0].location)break;
+		}
 	}
-	for (y2 = cardPj.width - 1; cardPj.colStat[y2] < cardPj.colStatAverage; --y2) {
-		line(kmeansErodeImg, Point(y2, 0),
-			Point(y2, kmeansErodeImg.cols), Scalar::all(0));
-		if (y2 < colPeak[colPeak.size() - 1])break;
+	else
+		for (y1 = 0; cardPj.colStat[y1] <= 30; ++y1) {}
+	if (!side[3]){
+		for (y2 = cardPj.width - 1; cardPj.colStat[y2] < cardPj.colStatAverage; --y2) {
+			//line(kmeansErodeImg, Point(y2, 0),
+			//	Point(y2, kmeansErodeImg.cols), Scalar::all(0));
+			if (y2 < colPeak[colPeak.size() - 1].location)break;
+		}
 	}
+	else
+		for (y2 = cardPj.width - 1; cardPj.colStat[y2] <= 30; --y2) {}
+	if (x1 < 10)x1 = 10;
+	if (y1 < 10)y1 = 10;
+	if (x2 > IMG_HEIGHT - 10)x2 = IMG_HEIGHT - 10;
+	if (y2 > IMG_WIDTH - 10)y2 = IMG_WIDTH - 10;
+	//bankCardArea = Rect(y1, x1, y2 - y1, x2 - x1);
 	bankCardArea = Rect(y1, x1, y2 - y1, x2 - x1);
 }
 
